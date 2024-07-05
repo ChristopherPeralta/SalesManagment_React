@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from "styled-components";
 import logo from "../assets/Logo.png";
 import { v } from "../styles/Variables";
@@ -100,12 +101,12 @@ const linksArray = [
   {
     label: "Productos",
     icon: <AiOutlineApartment />,
-    to: "/null",
+    to: "/productos",
   },
   {
     label: "Compras",
     icon: <MdOutlineAnalytics />,
-    to: "/null",
+    to: "/compras",
   },
   {
     label: "Ventas",

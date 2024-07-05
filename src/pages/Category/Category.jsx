@@ -1,10 +1,13 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../../config/apiConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import './Category.css';
-import DialogCategory from '../../components/DialogCategory';
+import DialogCategory from '../../components/DialogCategoryBrand';
+import { getCategorys, getDeletedCategorys, createCategory, updateCategory, deleteCategory, restoreCategory } from '../../services/CategoryServices';
+
 
 function Category() {
   const [categories, setCategories] = useState([]);
@@ -27,7 +30,7 @@ function Category() {
   };
 
   function loadDeletedCategories() {
-    axios.get(`${API_BASE_URL}/category/deleted`)
+    getDeletedCategorys()
       .then(response => {
         setCategories(response.data);
         setMessage(''); // Limpia cualquier mensaje anterior
@@ -42,7 +45,7 @@ function Category() {
   }
 
   function loadCategories() {
-    axios.get(`${API_BASE_URL}/category`)
+    getCategorys()
       .then(response => {
         setCategories(response.data);
       })
@@ -60,7 +63,7 @@ function Category() {
   }, [showDeleted]);
 
   function handleAdd(name) {
-    axios.post(`${API_BASE_URL}/category`, { name })
+    createCategory(name)
       .then(response => {
         setCategories(prevCategories => [...prevCategories, response.data]);
         closeDialog();
@@ -71,7 +74,7 @@ function Category() {
   }
   
   function handleEdit(id, newName) {
-    axios.put(`${API_BASE_URL}/category/${id}`, { name: newName })
+    updateCategory(id, newName)
       .then(response => {
         setCategories(prevCategories => prevCategories.map(category =>
           category.id === id ? response.data : category
@@ -84,7 +87,7 @@ function Category() {
   }
 
   function handleDelete(id) {
-    axios.delete(`${API_BASE_URL}/category/${id}`)
+    deleteCategory(id)
       .then(() => {
         setCategories(prevCategories => prevCategories.filter(category => category.id !== id));
       })
@@ -94,7 +97,7 @@ function Category() {
   }
 
   function handleRestore(id) {
-    axios.patch(`${API_BASE_URL}/category/restore/${id}`)
+    restoreCategory(id)
       .then(() => {
         loadDeletedCategories(); // Recarga las categorías eliminadas
       })

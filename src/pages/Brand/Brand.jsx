@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../../../config/apiConfig';
+import React from 'react';
+import {useEffect, useState } from 'react';
+import { getBrands, getDeletedBrands, createBrand, updateBrand, deleteBrand, restoreBrand } from '../../services/BrandServices'; // Asegúrate de que la ruta sea correcta
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import './Brand.css';
-import DialogBrand from '../../components/DialogCategory';
+import DialogBrand from '../../components/DialogCategoryBrand';
 
 function Brand() {
   const [brands, setBrands] = useState([]);
@@ -27,7 +28,7 @@ function Brand() {
   };
 
   function loadDeletedBrands() {
-    axios.get(`${API_BASE_URL}/brand/deleted`)
+    getDeletedBrands()
       .then(response => {
         setBrands(response.data);
         setMessage(''); // Limpia cualquier mensaje anterior
@@ -42,14 +43,19 @@ function Brand() {
   }
 
   function loadBrands() {
-    axios.get(`${API_BASE_URL}/brand`)
-      .then(response => {
+    getBrands()
+    .then(response => {
         setBrands(response.data);
-      })
-      .catch(error => {
-        console.error('Error al cargar las marcas:', error);
-      });
-  }
+        setMessage(''); // Limpia cualquier mensaje anterior
+    })
+    .catch(error => {
+        if (error.response && error.response.status === 404) {
+          setMessage(error.response.data.message);
+        } else {
+          console.error('Error al cargar las marcas:', error);
+        }
+    });
+}
 
   useEffect(() => {
     if (showDeleted) {
@@ -60,7 +66,7 @@ function Brand() {
   }, [showDeleted]);
 
   function handleAdd(name) {
-    axios.post(`${API_BASE_URL}/brand`, { name })
+    createBrand(name)
       .then(response => {
         setBrands(prevBrands => [...prevBrands, response.data]);
         closeDialog();
@@ -71,7 +77,7 @@ function Brand() {
   }
   
   function handleEdit(id, newName) {
-    axios.put(`${API_BASE_URL}/brand/${id}`, { name: newName })
+    updateBrand(id, newName)
       .then(response => {
         setBrands(prevBrands => prevBrands.map(brand =>
           brand.id === id ? response.data : brand
@@ -84,7 +90,7 @@ function Brand() {
   }
 
   function handleDelete(id) {
-    axios.delete(`${API_BASE_URL}/brand/${id}`)
+    deleteBrand(id)
       .then(() => {
         setBrands(prevBrands => prevBrands.filter(brand => brand.id !== id));
       })
@@ -94,7 +100,7 @@ function Brand() {
   }
 
   function handleRestore(id) {
-    axios.patch(`${API_BASE_URL}/brand/restore/${id}`)
+    restoreBrand(id)
       .then(() => {
         loadDeletedBrands(); // Recarga las marcas eliminadas
       })
