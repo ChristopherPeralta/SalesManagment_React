@@ -66,9 +66,13 @@ function Product() {
         }
       }, [showDeleted]);
 
-      function handleAdd(name, price, weight, unit, categoryId, brandId) {
-        createProduct(name, price, weight, unit, categoryId, brandId)
-          .then(response => {
+      function handleAdd({ name, price, weight, unit, categoryId, brandId }) {
+        if (!categoryId || !brandId) {
+          console.error('categoryId o brandId son undefined');
+          return;
+        }
+      createProduct({ name, price, weight, unit, categoryId, brandId })
+      .then(response => {
             if (response && response.data && typeof response.data === 'object' && response.data.name) {
               setProducts(prevCategories => [...prevCategories, response.data]);
               loadProducts();
@@ -80,10 +84,16 @@ function Product() {
           .catch(error => {
             console.error('Error al crear la producto:', error);
           });
-        }
-      
+      }
       
       function handleEdit(id, newName, price, weight, unit, categoryId, brandId) {
+        console.log('categoría:', categoryId);
+        console.log('marca:', brandId);
+        console.log('id:', id);
+        console.log('newName:', newName);
+        console.log('price:', price);
+        console.log('weight:', weight);
+        console.log('unit:', unit);
       updateProduct(id, newName, price, weight, unit, categoryId, brandId)
         .then(response => {
           setProducts(prevCategories => prevCategories.map(product =>
@@ -222,12 +232,18 @@ function Product() {
           </table>
           )}
             <DialogProduct
-            dialogOpen={dialogOpen} 
-            closeDialog={closeDialog} 
-            initialProduct={selectedProduct ? selectedProduct : {}}
-            onSubmit={selectedProduct ? (name, price, weight, unit, categoryId, brandId) => handleEdit(selectedProduct.id, name, categoryId, brandId, weight, unit, price) : handleAdd} 
+              dialogOpen={dialogOpen} 
+              closeDialog={closeDialog} 
+              initialProduct={selectedProduct ? selectedProduct : {}}
+              onSubmit={(name, price, weight, unit, categoryId, brandId) => {
+                if (selectedProduct) {
+                  handleEdit(selectedProduct.id, name, categoryId, brandId, weight, unit, price);
+                } else {
+                  handleAdd(name, price, weight, unit, categoryId, brandId);
+                }
+              }} 
             />
-        </div>  
+            </div>
       );
 
 }

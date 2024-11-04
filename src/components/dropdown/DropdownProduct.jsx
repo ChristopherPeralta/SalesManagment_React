@@ -4,7 +4,7 @@ const Dropdown = ({ label, id, value, onChange, options = [] }) => {
   const [search, setSearch] = useState('');
 
   const filteredOptions = options.filter(option =>
-    option && option.name && typeof option.name === 'string' && option.name.toLowerCase().includes(search.toLowerCase())
+    option && option.label && typeof option.label === 'string' && option.label.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -29,10 +29,9 @@ const Dropdown = ({ label, id, value, onChange, options = [] }) => {
         value={value}
         onChange={onChange}
       >
-
-        {filteredOptions.map(option => (
-          <option key={option.id} value={option.id}>
-            {option.name}
+        {filteredOptions.map((option, index) => (
+          <option key={option.value || index} value={option.value || index}>
+            {option.label || ''}
           </option>
         ))}
       </select>

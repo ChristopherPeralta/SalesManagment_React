@@ -1,7 +1,5 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../../../config/apiConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import './Category.css';
@@ -99,7 +97,7 @@ function Category() {
   function handleRestore(id) {
     restoreCategory(id)
       .then(() => {
-        loadDeletedCategories(); // Recarga las categorías eliminadas
+        loadDeletedCategories(); 
       })
       .catch(error => {
         console.error('Error al restaurar la categoría:', error);

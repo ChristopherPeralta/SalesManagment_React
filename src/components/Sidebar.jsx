@@ -111,7 +111,7 @@ const linksArray = [
   {
     label: "Ventas",
     icon: <MdOutlineAnalytics />,
-    to: "/null",
+    to: "/ventas",
   },
 ];
 const secondarylinksArray = [

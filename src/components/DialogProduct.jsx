@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getCategorys } from '../services/CategoryServices';
 import { getBrands } from '../services/BrandServices';
 import Dropdown from './dropdown/Dropdown';
+import InputField from './dropdown/InputField';
 
 
 const DialogProduct = ({ dialogOpen, closeDialog, initialProduct = { name: '', categoryId: '', brandId: '' }, onSubmit }) => {
@@ -9,47 +10,47 @@ const DialogProduct = ({ dialogOpen, closeDialog, initialProduct = { name: '', c
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
 
-    const [searchBrand, setSearchBrand] = useState('');
-
-    const filteredBrands = brands.filter(brands =>
-      brands.name.toLowerCase().includes(searchBrand.toLowerCase())
-    );
-
     useEffect(() => {
-    if (dialogOpen) {
+      if (dialogOpen) {
         loadCategories();
         loadBrands();
-        if (initialProduct.name || initialProduct.categoryId || initialProduct.brandId) {
-            console.log(initialProduct); // Imprime los datos del producto inicial
-            const { brand, category, weight, ...rest } = initialProduct;
-            const [weightValue, unit] = weight.split(' ');
-            setProduct({
-                ...rest,
-                brandId: brand.id,
-                categoryId: category.id,
-                weight: weightValue,
-                unit
-            });
-          }
+        const { brand, category, weight, ...rest } = initialProduct;
+        console.log('initialProduct:', initialProduct);
+        const [weightValue, unit] = weight ? weight.split(' ') : [null, null];
+        setProduct({
+          ...rest,
+          brandId: brand ? brand.id : 1,
+          categoryId: category ? category.id : 1,
+          weight: weightValue,
+          unit
+        });
       } else {
         // Restablece el estado del producto cuando el diálogo está cerrado
         setProduct({ name: '', categoryId: '', brandId: '' });
       }  
     }, [dialogOpen, initialProduct]);
+
       
     
-      const handleChange = (event) => {
-        console.log(event.target.name, event.target.value);
-        setProduct((prevProduct) => ({
-            ...prevProduct,
-            [event.target.name]: event.target.value,
-        }));
+    const handleChange = (event) => {
+      setProduct((prevProduct) => ({
+        ...prevProduct,
+        [event.target.name]: event.target.value,
+      }));
     };
     
-      const handleSubmit = (event) => {
-        event.preventDefault();
-        onSubmit(product);
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      console.log('brandId antes de enviar:', product.brandId);
+      console.log('categoryId antes de enviar:', product.categoryId);
+      const finalProduct = {
+        ...product,
+        price: Number(product.price),
+        weight: Number(product.weight),
       };
+      console.log('handleSubmit:', finalProduct);
+      onSubmit(finalProduct);
+    };
     
       function loadCategories() {
         getCategorys()
@@ -82,72 +83,58 @@ const DialogProduct = ({ dialogOpen, closeDialog, initialProduct = { name: '', c
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <form onSubmit={handleSubmit}>
 
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className="ring-purple-500 ring-1 border-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none block w-full sm:text-sm rounded-md p-2"
-                  value={product.name}
-                  onChange={handleChange}
-                />
+              <InputField
+                name="name"
+                label="Nombre"
+                id="name"
+                value={product.name}
+                onChange={handleChange}
+              />
 
+              <Dropdown
+                name="categoryId"
+                label="Categoría"
+                id="categoryId"
+                value={product.categoryId}
+                onChange={handleChange}
+                options={categories}
+              />
 
-                <Dropdown
-                  id="categoryId"
-                  value={product.categoryId}
-                  onChange={handleChange}
-                  options={categories}
-                />
+              <Dropdown
+                name="brandId"
+                label="Marca"
+                id="brandId"
+                value={product.brandId}
+                onChange={handleChange}
+                options={brands}
+              />
+                
+              <InputField
+                id="weight"
+                name="weight"
+                label="Cantidad"
+                value={product.weight}
+                onChange={handleChange}
+              />
 
+              <InputField
+                id="unit"
+                name="unit"
+                label="Unidad métrica (gr, ml)"
+                value={product.unit}
+                onChange={handleChange}
+              />
 
-                <Dropdown
-                  id="brandId"
-                  value={product.brandId}
-                  onChange={handleChange}
-                  options={brands}
-                />
-
-                <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
-                  Cantidad
-                </label>
-                <input
-                  type="text"
-                  name="weight"
-                  id="weight"
-                  className="ring-purple-500 ring-1 border-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none block w-full sm:text-sm rounded-md p-2"
-                  value={product.weight}
-                  onChange={handleChange}
-                />
-
-                <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
-                  Unidad metrica (gr, ml)
-                </label>
-                <input
-                  type="unit"
-                  name="unit"
-                  id="unit"
-                  className="ring-purple-500 ring-1 border-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none block w-full sm:text-sm rounded-md p-2"
-                  value={product.unit}
-                  onChange={handleChange}
-                />
-  
-                <label htmlFor="npriceame" className="block text-sm font-medium text-gray-700">
-                  Precio de venta
-                </label>
-                <input
-                  type="price"
-                  name="price"
-                  id="price"
-                  className="ring-purple-500 ring-1 border-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none block w-full sm:text-sm rounded-md p-2"
-                  value={product.price}
-                  onChange={handleChange}
-                />
+              <InputField
+                id="price"
+                name="price"
+                label="Precio"
+                value={product.price}
+                onChange={handleChange}
+              />
                 
                 <button type="submit" className="mt-4 mr-4 px-4 py-2 font-bold text-white bg-green-500 rounded hover:bg-green-700">
-                  Enviar
+                  Agregar
                 </button>
                 <button 
                   type="button" 
